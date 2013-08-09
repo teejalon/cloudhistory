@@ -112,10 +112,10 @@
       action: postgresql_user user=eemon password={{ eemondbpasswd }}  role_attr_flags=CREATEDB port={{ pgport }}
 
     - name: Create the cloudhistory PostgreSQL database
-      action: postgresql_db db={{ cloudhistdb }} owner=eemon port={{ pgport }}
+      action: postgresql_db db={{ cloudname }} owner=eemon port={{ pgport }}
 
     - name: Configure the PostgreSQL reemon user for cloud history db
-      action: postgresql_user db={{ cloudhistdb }} user=reemon password={{ reemondbpasswd }} priv=ALL port={{ pgport }}
+      action: postgresql_user db={{ cloudname }} user=reemon password={{ reemondbpasswd }} priv=ALL port={{ pgport }}
 
     - name: Restart PostgreSQL 9.1
       action: service name=postgresql-9.1 state=started 
@@ -128,8 +128,8 @@
       - create_images_table.sql
       - create_instance_table.sql
 
-    - name:  Create tables to cloud history $cloudhistdb database
-      action: command su - eemon -l -c "psql -p {{ pgport }}  {{ cloudhistdb }} -f {{ item }}"
+    - name:  Create tables to cloud history $cloudname database
+      action: command su - eemon -l -c "psql -p {{ pgport }}  {{ cloudname }} -f {{ item }}"
       with_items:
       - create_accounts_table.sql
       - create_core_table.sql
@@ -191,8 +191,8 @@
     - name: Pausing for db to start
       action: pause seconds=30
 
-    - name: Grant Reemon read access to $cloudhistdb
-      action: command su - postgres -l -c "psql $cloudhistdb  -p 8443 -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
+    - name: Grant Reemon read access to $cloudname db
+      action: command su - postgres -l -c "psql $cloudname  -p 8443 -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
 # Use this section for a mail notification when instance configuration is complete. 
 # You need to set the mail_from and mail_to vars.
 #  - name: Send e-mail to admins

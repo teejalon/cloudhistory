@@ -11,5 +11,5 @@ else
         tidy -xml -i -q -w 0 -o {{ eemonhome }}/cloudhistory/$CLOUDNAME\_tidy_images.xml < {{ eemonhome }}/cloudhistory/euca-describe-images_$CLOUDNAME\.xml
         sed -i 1i"<root>" $CLOUDNAME\_tidy_images.xml
         echo "</root>" >> $CLOUDNAME\_tidy_images.xml
-        {{ eemonhome }}/cloudhistory/readinsertimages.py -n $CLOUDNAME\history -p {{ eemondbpasswd }} -port={{ pgport }} -x {{ eemonhome }}/cloudhistory/$CLOUDNAME\_tidy_images.xml
+        {{ eemonhome }}/cloudhistory/readinsertimages.py -n $CLOUDNAME -p {{ eemondbpasswd }} -port={{ pgport }} -x {{ eemonhome }}/cloudhistory/$CLOUDNAME\_tidy_images.xml
 fi

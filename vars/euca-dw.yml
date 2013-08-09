@@ -3,7 +3,6 @@ pgport: 8443
 pgdir: /ephemeral
 pgdata: /ephemeral/pgsql/9.1/data
 pglog: /ephemeral/pgsql/9.1/pgstartup.log
-cloudhistdb: mycloudhistory
 eemondbpasswd: histpasswd
 reemondbpasswd: readonlypasswd
 cloudname: mycloud
