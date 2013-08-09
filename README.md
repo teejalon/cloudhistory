@@ -1,9 +1,9 @@
-ansible-playbook for cloud history and eucalyptus datawarehouse
+Ansible-playbook for launching cloud history and eucalyptus datawarehouse
 =================
 
 Expects RHEL/CENTOS6 [tested on rhel6.3 64b]
-Playbooks for deploying and managing Eucalyptus using Ansible.
 
+Create security group and keypair
 Modify the vars/euca-dw.yml to match your environment
 
 Source your clouds credentials
