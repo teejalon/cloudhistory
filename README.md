@@ -14,4 +14,4 @@ ansible-playbook -vvv --private-key=mykey.private cloudhistory-ec2.yml
 use reemon for read only access to history db
 eemon to write access to historydb
 
-Access the data with browser using http://<instanceaddress>
+Access the data with browser using http://instanceaddress
