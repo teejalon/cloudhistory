@@ -45,17 +45,29 @@
     - name: Create eemon user with passwd
       action: user name=eemon home={{ eemonhome }} password=VW01cZ06C7w7g
 
-    - name: Download release RPM
+    - name: Download eucalyptus release RPM
       action: get_url url=http://downloads.eucalyptus.com/software/eucalyptus/3.2/rhel/6/x86_64/eucalyptus-release-3.2.noarch.rpm dest=/tmp/ thirsty=yes
     
+    - name: Download euca2ools repo RPM
+      action: get_url url=http://downloads.eucalyptus.com/software/euca2ools/3.0/rhel/6Server/x86_64/euca2ools-release-3.0.noarch.rpm dest=/tmp/ thirsty=yes
+
+    - name: download epel repo
+      action: get_url url=http://downloads.eucalyptus.com/software/euca2ools/3.0/rhel/6Server/x86_64/epel-release-6.noarch.rpm dest=/tmp/ thirsty=yes
+
     - name: Configure Eucalyptus repo
       action: command rpm -Uvh --force /tmp/eucalyptus-release-3.2.noarch.rpm 
+
+    - name: Configure Euca2ool v3 repo
+      action: command rpm -Uvh --force /tmp/euca2ools-release-3.0.noarch.rpm
+
+    - name: Configure Epel repo
+      action: command rpm -Uvh --force /tmp/epel-release-6.noarch.rpm
 
     - name: Install Eucalyptus Reporting Archive (Data Warehouse)
       action: yum pkg=eucadw state=latest
 
     - name: Install cloud history and other needed packages
-      action: yum pkg=python-psycopg2,openssh-clients,vim,python-argparse,bind-utils,unzip,tidy state=latest
+      action: yum pkg=python-psycopg2,openssh-clients,vim,python-argparse,bind-utils,unzip,tidy,euca2ools state=latest
 
     - name: Install Cloud history query related packages
       action: yum pkg=httpd,php,php-pgsql state=latest
