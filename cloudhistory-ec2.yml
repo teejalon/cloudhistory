@@ -78,6 +78,9 @@
     - name: start httpd
       action: service name=httpd state=started
 
+    - name: stop iptables
+      action: service name=iptables state=stopped enabled=no
+
     - name: Change inline the php to match the this clouds parameters
       action: template  src=templates/index.j2 dest=/var/www/html/index.php owner=root mode=0755
 
