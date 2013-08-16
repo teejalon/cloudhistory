@@ -142,6 +142,7 @@
       - create_core_table.sql
       - create_images_table.sql
       - create_instance_table.sql
+      - create_cloudstatus_table.sql
 
     - name:  Create tables to cloud history $cloudname database
       action: command su - eemon -l -c "psql -p {{ pgport }}  {{ cloudname }} -f {{ item }}"
@@ -150,6 +151,7 @@
       - create_core_table.sql
       - create_images_table.sql
       - create_instance_table.sql
+      - create_cloudstatus_table.sql
 
     - name: Create cloudhistory directory
       action: command su - eemon -l -c "mkdir -p {{ eemonhome }}/cloudhistory/"
