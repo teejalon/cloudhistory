@@ -214,6 +214,10 @@
 
     - name: Grant Reemon read access to $cloudname db
       action: command su - postgres -l -c "psql $cloudname  -p {{ pgport }} -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
+
+   - name: Grant Reemon read access to eucalyptus_reporting db
+      action: command su - postgres -l -c "psql eucalyptus_reporting -p {{ pgport }} -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
+
 # Use this section for a mail notification when instance configuration is complete. 
 # You need to set the mail_from and mail_to vars.
 #  - name: Send e-mail to admins
