@@ -180,7 +180,7 @@ echo "<div>";
 echo "<p style=\"font-size:12pt\">";
 echo "<center><h2 style=\"font-family:arial;color:green\">" . $cloud . " ".$querytitle[$_POST['cloudquery']]." between ".$_POST['start1']." and ".$_POST['end1']."</h2></center>";
 $user = 'reemon';
-$password = 'r33mon';
+$password = '{{ reemondbpasswd }}';
 $connectString = 'host=' . $host . ' port=' . $port . ' dbname=' . $cloud . ' user=' . $user . ' password=' . $password . ' connect_timeout=5';
 $link = pg_connect ($connectString);
 //if (!$link) { die('Error: Could not connect: ' . pg_last_error()); }

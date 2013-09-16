@@ -103,7 +103,7 @@
       action: shell sed -i 's_^PGDATA=/var/lib/pgsql/9.1/data_PGDATA={{ pgdir }}/pgsql/9.1/data_' /etc/init.d/postgresql-9.1
 
     - name: sed PGPORT /etc/init.d/postgresql-9.1 
-      action: shell sed -i 's_^PGPORT=5432_PGPORT=8443_' /etc/init.d/postgresql-9.1
+      action: shell sed -i 's_^PGPORT=5432_PGPORT={{ pgport }}_' /etc/init.d/postgresql-9.1
 
     - name: sed PGLOG /etc/init.d/postgresql-9.1
       action: shell sed -i 's_^PGLOG=/var/lib/pgsql/9.1/pgstartup.log_PGLOG={{ pgdir }}/pgsql/9.1/pgstartup.log_' /etc/init.d/postgresql-9.1
@@ -131,6 +131,10 @@
 
     - name: Configure the PostgreSQL reemon user for cloud history db
       action: postgresql_user db={{ cloudname }} user=reemon password={{ reemondbpasswd }} priv=ALL port={{ pgport }}
+
+    - name: Configure the PostgreSQL reemon user for eucalyptus_reporting db
+      action: postgresql_user db=eucalyptus_reporting user=reemon password={{ reemondbpasswd }} priv=ALL port={{ pgport }}
+
 
     - name: Restart PostgreSQL 9.1
       action: service name=postgresql-9.1 state=started 
@@ -209,7 +213,7 @@
       action: pause seconds=30
 
     - name: Grant Reemon read access to $cloudname db
-      action: command su - postgres -l -c "psql $cloudname  -p 8443 -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
+      action: command su - postgres -l -c "psql $cloudname  -p {{ pgport }} -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
 # Use this section for a mail notification when instance configuration is complete. 
 # You need to set the mail_from and mail_to vars.
 #  - name: Send e-mail to admins
