@@ -1,4 +1,3 @@
-[eemon@euca-10-254-77-14 cloudhistory]$ cat readinsertaccounts.py
 #!/usr/bin/python
 #
 #  Python script to read tidied and stripped xml from euare-accountlist --debug to postgres DB as an eemon user
@@ -45,8 +44,17 @@ def getEmail(AccountName):
         command3 = "euare-usergetinfo -u " + AccountName + " -k email --delegate=" + AccountName
         proc3 = subprocess.Popen(command3, stdout=subprocess.PIPE, shell=True)
         (out3, err3) = proc3.communicate()
-        print "euareinfo output:", out3
-        accountEmail = out3.split(None,1)[1]
+        print "euareinfo output:", out3, "Error" ,err3
+        # Test if the email was Not found and if not try admin user email instead
+        if "Can not find user" in out3:
+                print "in Can not find user path"
+                command4 = "euare-usergetinfo -u admin -k email --delegate=" + AccountName
+                proc4 = subprocess.Popen(command4, stdout=subprocess.PIPE, shell=True)
+                (out4, err4) = proc4.communicate()
+                accountEmail = out4.split(None,1)[1]
+                #No test for situation if admin does not have email either
+        else:
+                accountEmail = out3.split(None,1)[1]
         return accountEmail
 
 def insertToDb(sampledatetime,AccountId,AccountName,AccountEmail):
