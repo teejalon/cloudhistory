@@ -1,3 +1,4 @@
+[eemon@euca-10-254-77-14 cloudhistory]$ cat readinsertaccounts.py
 #!/usr/bin/python
 #
 #  Python script to read tidied and stripped xml from euare-accountlist --debug to postgres DB as an eemon user
@@ -9,6 +10,9 @@ import datetime
 import StringIO
 from xml.etree.ElementTree import iterparse
 import argparse
+import subprocess
+import StringIO
+
 
 sampledatetime = datetime.datetime.now()
 
@@ -32,64 +36,78 @@ cloudhistoryxmlpath=args.pathtotidyxmlfile
 
 # account id
 AccountId = ''
-# Image Location in bukkits
+# Account name
 AccountName = ''
+# Account email
+AccountEmail = ''
 
-def insertToDb(sampledatetime,AccountId,AccountName):
-	print "insertToDb: inserting Acccount ID",AccountId, "to db - AccountName:", AccountName
-	try:
-		cursor.execute("""INSERT INTO "accounthistory" (
-			sampledatetime,
-			AccountId,
-			AccountName
-			)	
-			VALUES (%s,%s,%s);""",(
-			sampledatetime,
-			AccountId,
-        		AccountName
-			)
-		)
-		#conn execute ends
-		conn.commit()
-		cleanCloudDataVariables()
-		print "insertToDb: inserting account ID",AccountId, "to db - AccountName: AFTER CLEANUP", AccountName
-	except:
-		e = sys.exc_info()[0]
-		print "exception occurred: ",e
+def getEmail(AccountName):
+        command3 = "euare-usergetinfo -u " + AccountName + " -k email --delegate=" + AccountName
+        proc3 = subprocess.Popen(command3, stdout=subprocess.PIPE, shell=True)
+        (out3, err3) = proc3.communicate()
+        print "euareinfo output:", out3
+        accountEmail = out3.split(None,1)[1]
+        return accountEmail
+
+def insertToDb(sampledatetime,AccountId,AccountName,AccountEmail):
+        print "insertToDb: inserting Acccount ID",AccountId, "to db - AccountName:", AccountName, " Account Email", AccountEmail
+        try:
+                cursor.execute("""INSERT INTO "accounthistory" (
+                        sampledatetime,
+                        AccountId,
+                        AccountName,
+                        AccountEmail
+                        )
+                        VALUES (%s,%s,%s,%s);""",(
+                        sampledatetime,
+                        AccountId,
+                        AccountName,
+                        AccountEmail
+                        )
+                )
+                #conn execute ends
+                conn.commit()
+                cleanCloudDataVariables()
+                print "insertToDb: inserting account ID",AccountId, "to db - AccountName: AFTER CLEANUP", AccountName, " Account Email", AccountEmail
+        except:
+                e = sys.exc_info()[0]
+                print "exception occurred: ",e
 #
 #
 # Def insertToDb ends
-# 
+#
 
 def cleanCloudDataVariables():
-	print "cleanCloudDataVariables - AcountName:",AccountName," ID", AccountId
-	global AccountId
-	AccountId = ''
-	global AccountName
-	AccountName = ''
-	print "cleanCloudDataVariables - AccountName:",AccountName," ID", AccountId
+        print "cleanCloudDataVariables - AcountName:",AccountName," ID", AccountId
+        global AccountId
+        AccountId = ''
+        global AccountName
+        AccountName = ''
+        global AccountEmail
+        AccountEmail = ''
+        print "cleanCloudDataVariables - AccountName:",AccountName," ID", AccountId
 #
 # Def cleanCloudDataVariables ends
 #
 
 
 def AccountNotAlreadyInDb(AccountId):
-	#print "AccountNotAlreadyInDb: searching Image:",imageId," from db"
-	try:
-		cursor.execute("SELECT * from accounthistory WHERE accountid=%(AccountId)s ",{'AccountId': AccountId} )
-		print "AccountNotAlreadyInDb:",cursor.statusmessage
-		row = cursor.fetchone()
-		print "AccountNotAlreadyInDb: Row fetchone()",row
-		if row == None:
-			print "AccountNotAlreadyInDb: row == None return 0"
-			return 1
-		else:
-			print "AccountNotAlreadyInDb: row != None return 1"
-			return 0
-	except Exception, e:
-		#e = sys.exc_info()[0]
-		print "AccountNotAlreadyInDb: exception occurred: ",e.pgerror
-		return 0
+        #print "AccountNotAlreadyInDb: searching Image:",imageId," from db"
+        try:
+                cursor.execute("SELECT * from accounthistory WHERE accountid=%(AccountId)s ",{'AccountId': AccountId} )
+                print "AccountNotAlreadyInDb:",cursor.statusmessage
+                row = cursor.fetchone()
+                print "AccountNotAlreadyInDb: Row fetchone()",row
+                if row == None:
+                        print "AccountNotAlreadyInDb: row == None return 0"
+                        return 1
+                else:
+                        print "AccountNotAlreadyInDb: row != None return 1"
+                        return 0
+        except Exception, e:
+                #e = sys.exc_info()[0]
+                print "AccountNotAlreadyInDb: exception occurred: ",e.pgerror
+                return 0
 #
 # is Image In DB def ends
 #
@@ -110,19 +128,21 @@ for (event, node) in iterparse(cloudhistoryxmlpath, ['start', 'end']):
                 if node.tag == "{http://iam.amazonaws.com/doc/2010-05-08/}member":
                         print "\n\n END member", AccountId, AccountName
                         #print "\nAll End Event: Image data from debug:\n" ,imageId \
-                        #	,imageLocation,imageState \
-                        #	,imageOwnerId,isPublic,architecture \
-                        #	,platform,imageType,name \
-                        #	,description,rootDeviceType,rootDeviceName
-			if AccountNotAlreadyInDb(AccountId):
-				insertToDb(sampledatetime,AccountId \
-				,AccountName)
-			#else:
-			#	print "End Event: Image already in imagehistory DB not inserting it again"
+                        #       ,imageLocation,imageState \
+                        #       ,imageOwnerId,isPublic,architecture \
+                        #       ,platform,imageType,name \
+                        #       ,description,rootDeviceType,rootDeviceName
+                        if AccountNotAlreadyInDb(AccountId):
+                                insertToDb(sampledatetime,AccountId \
+                                ,AccountName,AccountEmail)
+                        #else:
+                        #       print "End Event: Image already in imagehistory DB not inserting it again"
                 if node.tag == "{http://iam.amazonaws.com/doc/2010-05-08/}AccountName":
-                       	AccountName = node.text
-                       	print "\n Account Name:",node.text
-                       	continue
+                        AccountName = node.text
+                        print "\n Account Name:",node.text
+                        AccountEmail = getEmail(AccountName)
+                        print "\n Account Email:",AccountEmail
+                        continue
                 if node.tag == "{http://iam.amazonaws.com/doc/2010-05-08/}AccountId":
                         AccountId = node.text
                         print "\n Account Id:",node.text
