@@ -143,7 +143,6 @@
       action: copy src=files/{{ item }} dest={{ eemonhome }} owner=eemon group=eemon mode=0755
       with_items:
       - create_accounts_table.sql
-      - create_core_table.sql
       - create_images_table.sql
       - create_instance_table.sql
       - create_cloudstatus_table.sql
@@ -152,7 +151,6 @@
       action: command su - eemon -l -c "psql -p {{ pgport }}  {{ cloudname }} -f {{ item }}"
       with_items:
       - create_accounts_table.sql
-      - create_core_table.sql
       - create_images_table.sql
       - create_instance_table.sql
       - create_cloudstatus_table.sql
