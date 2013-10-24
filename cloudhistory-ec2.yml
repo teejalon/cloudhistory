@@ -155,6 +155,12 @@
       - create_instance_table.sql
       - create_cloudstatus_table.sql
 
+    - name: Copy move database dump script
+      action: copy src=files/move_db_dump.sh dest=/root
+
+    - name: Create Cronjob for moving backup file
+     action: cron name="move backups" minute=30 hour="5" user=root job="timeout 720 /root/move_db_dump.sh {{ cloudname }} >/dev/null 2>&1"
+
     - name: Create cloudhistory directory
       action: command su - eemon -l -c "mkdir -p {{ eemonhome }}/cloudhistory/"
 
@@ -182,6 +188,9 @@
 
     - name: Create eemon Cronjob for updating instance data
       action: cron name="Update Instance data" minute="0-59" user=eemon job="timeout 720 ${eemonhome}/cloudhistory/update_instancedata_to_db.sh {{ cloudname }} >/dev/null 2>&1"
+
+    - name: Create Cronjob for backing up the databases
+      action: cron name="backup dbs" minute=30 hour="10" user=root job="timeout 720 /usr/pgsql-9.1/bin/pg_dumpall > /tmp/{{ cloudname }}.sql >/dev/null 2>&1"
 
     - name: Create admin creds directory
       action: command su - eemon -l -c "mkdir -p {{ eemonhome }}/cloudhistory/.euca_{{ cloudname }}_admin/"
@@ -213,7 +222,7 @@
     - name: Grant Reemon read access to $cloudname db
       action: command su - postgres -l -c "psql $cloudname  -p {{ pgport }} -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
 
-   - name: Grant Reemon read access to eucalyptus_reporting db
+    - name: Grant Reemon read access to eucalyptus_reporting db
       action: command su - postgres -l -c "psql eucalyptus_reporting -p {{ pgport }} -c 'GRANT SELECT ON ALL TABLES IN SCHEMA public TO reemon;'" ignore_errors=yes
 
 # Use this section for a mail notification when instance configuration is complete. 
