@@ -156,8 +156,8 @@
       - create_instance_table.sql
       - create_cloudstatus_table.sql
 
-    - name: Copy move database dump script
-      action: copy src=files/move_db_dump.sh dest=/root
+    - name: Copy template move database dump script
+      action: template src=files/move_db_dump.j2 dest=/root/move_db_dump.sh
 
     - name: Create Cronjob for moving backup file
       action: cron name="move backups" minute=30 hour="5" user=root job="timeout 720 /root/move_db_dump.sh {{ cloudname }} >/dev/null 2>&1"
