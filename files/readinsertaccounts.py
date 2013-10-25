@@ -51,8 +51,13 @@ def getEmail(AccountName):
                 command4 = "euare-usergetinfo -u admin -k email --delegate=" + AccountName
                 proc4 = subprocess.Popen(command4, stdout=subprocess.PIPE, shell=True)
                 (out4, err4) = proc4.communicate()
-                accountEmail = out4.split(None,1)[1]
-                #No test for situation if admin does not have email either
+		try:
+               		accountEmail = out4.split(None,1)[1]
+		except:
+			e = sys.exc_info()[0]
+               		print "exception occurred: ",e
+			accountEmail = "Can not find email for account " + AccountName
+                	#No test for situation if admin does not have email either
         else:
                 accountEmail = out3.split(None,1)[1]
         return accountEmail
